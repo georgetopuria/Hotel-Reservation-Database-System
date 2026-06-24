@@ -1,6 +1,6 @@
 # Hotel Reservation Database System
 
-# Video Demonstration
+Video Demonstration:
 https://youtu.be/TZCFDQb-QVE
 
 # Overview
