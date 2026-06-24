@@ -1,0 +1,313 @@
+-- Store guest info
+Create table Guests ( 
+  Guest_Id INT AUTO_INCREMENT PRIMARY KEY,
+  First_Name varchar (50) NOT NULL,
+  Last_name VARCHAR (50) NOT NULL,
+  Email varchar (100) NOT NULL UNIQUE,
+  	check (Email like '%@%'),
+  Phone_No Varchar (10) NOT NULL UNIQUE,
+  Country VARCHAR (100) NOT NULL,
+  Registration_Date DATE DEFAULT (CURRENT_DATE)
+);
+-- Store room type info
+CREATE Table Room_Types ( 
+  Room_Type_Id INT AUTO_INCREMENT PRIMARY KEY,
+  Room_Type_Name Varchar (50) NOT NULL,
+  Description varchar (200) NOT NULL,
+  Room_Price decimal (10, 2) NOT NULL CHECK (Room_Price>0),
+  Capacity decimal NOT NULL CHECK (Capacity>0)
+); 
+-- Store rooms hotel info
+Create TABLE Hotel_Rooms (
+  Room_Id int auto_increment primary key,
+  Room_No decimal not null UNIQUE,
+  floor decimal not null CHECK (Floor>=0),
+  Status varchar (15) not null DEFAULT 'Available',
+  	check (status in ('Available', 'Occupied', 'Maintenance', 'Cleaning')),
+  Room_Type_Id int not null,
+  foreign key (Room_Type_Id) references Room_Types(Room_Type_Id)
+);
+-- Store booking info
+CREATE table Bookings (
+  Booking_Id int auto_increment primary key,
+  Guest_Id int not null,
+  foreign key (Guest_Id) references Guests(Guest_Id),
+  Room_Id int not null,
+  foreign key (Room_Id) references Hotel_Rooms(Room_Id),
+  Check_In_Date date not null,
+  Check_Out_Date date not null,
+  	check (Check_Out_Date > Check_In_Date),
+  Booking_Date date not null,
+  Booking_Status varchar(20) not null,
+  	check (Booking_Status in ('Pending', 'Confirmed', 'Cancelled', 'Completed')),
+  Total_Amount decimal (10, 2) check (Total_Amount>=0)
+); 
+-- Store payment info
+CREATE TABLE Payments (
+  Payment_Id int auto_increment primary key,
+  Booking_Id int not null,
+  foreign key (Booking_Id) references Bookings(Booking_Id),
+  Payment_Date date,
+  Amount decimal (10, 2) not null check (Amount>0),
+  Method varchar (30) not null,
+  	check (Method in ('Card', 'Bank Transfer', 'Cash', 'Online')),
+  Payment_Status boolean
+); 
+-- Store service info
+create Table Services (
+  Service_id int auto_increment primary key,
+  Service_Name Varchar (30) not null unique,
+  Service_description varchar (100),
+  Price decimal (10, 2) not null check (Price>=0)
+); 
+-- Store service booking info
+create table Booking_Services (
+  Booking_Service_id int auto_increment primary key,
+  Booking_id int not null,
+  foreign key (Booking_Id) references Bookings(Booking_Id),
+  Service_Id int not null,
+  foreign key (Service_Id) references Services(Service_Id),
+  Quantity int not null default 0 check (Quantity>=0), 
+  Service_Date date
+);
+
+-- actual info
+
+-- guest info
+INSERT INTO Guests
+(
+  First_Name,
+  Last_Name,
+  Email,
+  Phone_No,
+  Country
+)
+VALUES
+  ('Nika', 'Japaridze', 'Nika@japar.com', '1236769420', 'Georgia'),
+  ('Gio', 'Topuria', 'Gio@topka.com', '6767676767', 'Georgia'),
+  ('Zuka', 'Mujiri', 'Zuka@mujir.com', '420420420', 'Georgia'),
+  ('Chelo', 'Iradze', 'Chelo@irad.com', '60606060', 'Georgia');
+  
+SELECT * FROM Guests;
+-- room type info
+INSERT INTO Room_Types
+(
+  Room_Type_Name,
+  Description, 
+  Room_Price, 
+  Capacity
+)
+VALUES
+  ('single room', 'a room with one bed', 70.00, 1),
+  ('single room', 'a room with one bed', 70.00, 1),
+  ('single room', 'a room with one bed', 70.00, 1),
+  ('single room', 'a room with one bed', 70.00, 1),
+  ('double room', 'a room with two beds', 100.00, 2),
+  ('double room', 'a room with two beds', 100.00, 2),
+  ('double room', 'a room with two beds', 100.00, 2),
+  ('family room', 'a room with three beds', 180.00, 4),
+  ('family room', 'a room with three beds', 180.00, 4),
+  ('presidencial', 'biggest suite in the hotel', 300.00, 7);
+
+SELECT * FROM Room_Types;
+-- room hotel info
+INSERT INTO Hotel_Rooms
+(
+  Room_No,
+  Floor, 
+  Status,
+  Room_Type_Id
+)
+VALUES
+  ('110', 1, 'Maintenance', 1),
+  ('111', 1, 'Cleaning', 2),
+  ('112', 1, 'Available', 3), 
+  ('113', 1, 'Cleaning', 4),
+  ('210', 2, 'Occupied', 5),
+  ('211', 2, 'Available', 6), 
+  ('212', 2, 'Available', 7),
+  ('310', 3, 'Available', 8),
+  ('311', 3, 'Available', 9),
+  ('410', 4, 'Occupied', 10);
+
+SELECT * FROM Hotel_Rooms;
+-- bookings info
+INSERT INTO Bookings
+(
+  Guest_Id,
+  Room_Id, 
+  Check_In_Date,
+  Check_Out_Date, 
+  Booking_Date, 
+  Booking_Status,
+  Total_Amount
+)
+VALUES
+(1, 1, '2026-07-02', '2026-07-04', '2026-04-01', 'Pending', 100.00),
+(2, 10, '2026-06-02', '2026-06-22', '2026-02-10', 'Confirmed', 2360.00), 
+(3, 4, '2026-04-02', '2026-04-08', '2026-01-20', 'Completed', 185.00), 
+(4, 5, '2026-06-09', '2026-06-15', '2026-02-01', 'Cancelled', 190.00);
+
+SELECT * FROM Bookings;
+-- payments info
+INSERT INTO Payments
+(
+  Booking_Id,
+  Payment_Date,
+  Amount, 
+  Method, 
+  Payment_Status
+)
+VALUES
+  (1, '2026-04-01', 100.00, 'Online', FALSE), 
+  (2, '2026-02-10', 2360.00, 'Card', FALSE), 
+  (3, '2026-01-20', 185.00, 'Cash', TRUE),
+  (4, '2026-02-01', 190.00, 'Bank Transfer', FALSE);
+
+SELECT * FROM Payments;
+-- service  info
+INSERT INTO Services
+(
+  Service_Name,
+  service_Description,
+  Price 
+)
+VALUES
+	('Breakfast', 'Hotel Morning Breakfast', 15),
+    ('Spa', 'Hotel Spa Experience', 25),
+    ('Daycare', 'Hotel Daycare for Childeren', 20), 
+    ('Aqua Park', 'Hotel Aqua Park With Many Fun Slides', 30), 
+    ('Rental Bike', 'Rent a Bike for the day', 20);
+
+SELECT * FROM Services;
+-- service booking info
+INSERT INTO Booking_Services
+(
+  Booking_Id,
+  Service_Id,
+  Quantity, 
+  Service_Date
+)
+VALUES
+	(1, 1, 2, '2026-07-02'), 
+    (2, 1, 20, '2026-06-02'), 
+    (3, 1, 6, '2026-04-02'),
+    (4, 1, 6, '2026-06-09'),
+    (2, 4, 20, '2026-06-02'), 
+    (2, 3, 15, '2026-06-02'), 
+    (2, 5, 3, '2026-06-02'),
+    (2, 2, 8, '2026-06-02'),
+    (3, 2, 1, '2026-04-02');
+    
+Select*
+From Bookings
+WHERE Booking_status = 'Confirmed';
+
+SELECT *
+from hotel_rooms
+WHERE Status = 'Available';
+
+SELECT *
+from Guests
+WHERE Country = 'Georgia';
+
+select * 
+from Room_Types
+Order BY room_Price DESC;
+
+select * 
+FROM Guests
+ORDER BY Last_Name ASC;
+
+select COUNT(*) AS Total_Guests
+From Guests;
+
+select SUM(Amount) AS Revenue
+FROM Payments;
+
+Select AVG(Room_Price) AS Average_Room_Price
+FROM Room_Types;
+
+Select max(Room_Price) as Most_Expensice_Room
+from room_types;
+
+
+select
+Guests.First_Name,
+Guests.Last_Name,
+bookings.booking_id,
+bookings.check_in_date,
+bookings.check_out_Date,
+bookings.booking_status
+From guests
+join Bookings
+on Guests.Guest_Id = Bookings.Guest_Id;
+
+select
+    bookings.Booking_Id,
+    Hotel_Rooms.Room_No,
+    room_types.Room_Type_Name,
+    bookings.Check_In_Date,
+    Bookings.Check_Out_Date
+From Bookings
+JOIN Hotel_Rooms
+on Bookings.Room_Id = Hotel_Rooms.Room_Id
+join Room_Types
+on Hotel_Rooms.Room_Type_Id = room_types.Room_Type_Id;
+
+SELECT
+  guests.First_Name,
+  guests.Last_Name,
+  payments.Amount,
+  payments.Method,
+  payments.Payment_Status
+from guests
+join Bookings
+ON Guests.Guest_Id = bookings.Guest_Id
+JOIN payments
+on Bookings.Booking_Id = payments.Booking_id;
+
+SELECT
+  bookings.Booking_Id,
+  Services.service_name,
+  booking_services.quantity,
+  Services.price,
+  booking_services.quantity * services.price as service_total
+from Booking_Services
+join services
+ON booking_services.service_id = services.service_id
+join bookings
+on booking_services.booking_id = Bookings.booking_id;
+   
+SElect 
+  booking_status,
+  count(*) as number_of_bookings
+from bookings
+group by booking_status;
+   
+Select
+  room_types.room_type_name,
+  count(hotel_rooms.room_id) As number_of_rooms
+FROM Room_Types
+JOIN Hotel_Rooms
+ON room_types.room_type_id = hotel_rooms.room_type_id
+GROUP BY room_types.Room_Type_Name;
+
+Select
+  method,
+  sum(amount) AS total_By_Method
+From payments
+group by method;
+
+SELECT
+  method,
+  sum(amount) as total_method
+from payments
+group by method
+having sum(amount) > 100;
+
+   
+Show tables;
+
+-- queriebiani kodi
+-- sql with queries

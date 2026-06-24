@@ -1,0 +1,75 @@
+-- Store guest info
+Create table Guests ( 
+  Guest_Id INT AUTO_INCREMENT PRIMARY KEY,
+  First_Name varchar (50) NOT NULL,
+  Last_name VARCHAR (50) NOT NULL,
+  Email varchar (100) NOT NULL UNIQUE,
+  	check (Email like '%@%'),
+  Phone_No Varchar (10) NOT NULL UNIQUE,
+  Country VARCHAR (100) NOT NULL,
+  Registration_Date DATE DEFAULT (CURRENT_DATE)
+);
+-- Store room type info
+CREATE Table Room_Types ( 
+  Room_Type_Id INT AUTO_INCREMENT PRIMARY KEY,
+  Room_Type_Name Varchar (50) NOT NULL,
+  Description varchar (200) NOT NULL,
+  Room_Price decimal (10, 2) NOT NULL CHECK (Room_Price>0),
+  Capacity decimal NOT NULL CHECK (Capacity>0)
+); 
+-- Store rooms hotel info
+Create TABLE Hotel_Rooms (
+  Room_Id int auto_increment primary key,
+  Room_No decimal not null UNIQUE,
+  floor decimal not null CHECK (Floor>=0),
+  Status varchar (15) not null DEFAULT 'Available',
+  	check (status in ('Available', 'Occupied', 'Maintenance', 'Cleaning')),
+  Room_Type_Id int not null,
+  foreign key (Room_Type_Id) references Room_Types(Room_Type_Id)
+);
+-- Store booking info
+CREATE table Bookings (
+  Booking_Id int auto_increment primary key,
+  Guest_Id int not null,
+  foreign key (Guest_Id) references Guests(Guest_Id),
+  Room_Id int not null,
+  foreign key (Room_Id) references Hotel_Rooms(Room_Id),
+  Check_In_Date date not null,
+  Check_Out_Date date not null,
+  	check (Check_Out_Date > Check_In_Date),
+  Booking_Date date not null,
+  Booking_Status varchar(20) not null,
+  	check (Booking_Status in ('Pending', 'Confirmed', 'Cancelled', 'Completed')),
+  Total_Amount decimal (10, 2) check (Total_Amount>=0)
+); 
+-- Store payment info
+CREATE TABLE Payments (
+  Payment_Id int auto_increment primary key,
+  Booking_Id int not null,
+  foreign key (Booking_Id) references Bookings(Booking_Id),
+  Payment_Date date,
+  Amount decimal (10, 2) not null check (Amount>0),
+  Method varchar (30) not null,
+  	check (Method in ('Card', 'Bank Transfer', 'Cash', 'Online')),
+  Payment_Status boolean
+); 
+-- Store service info
+create Table Services (
+  Service_id int auto_increment primary key,
+  Service_Name Varchar (30) not null unique,
+  Service_description varchar (100),
+  Price decimal (10, 2) not null check (Price>=0)
+); 
+-- Store service booking info
+create table Booking_Services (
+  Booking_Service_id int auto_increment primary key,
+  Booking_id int not null,
+  foreign key (Booking_Id) references Bookings(Booking_Id),
+  Service_Id int not null,
+  foreign key (Service_Id) references Services(Service_Id),
+  Quantity int not null default 0 check (Quantity>=0), 
+  Service_Date date
+);
+
+-- es carieli
+-- this is just the barebones sql
